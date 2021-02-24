@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown';
 class CourseDetail extends Component {
     state = {
         course: [],
-        user: []
+        author: []
     }
 
     componentDidMount() {
@@ -16,7 +16,7 @@ class CourseDetail extends Component {
             .then(responseData => {
                 this.setState({ 
                     course: responseData.course,
-                    user: responseData.course.user
+                    author: responseData.course.user
                 });
             })
             .catch(error => {
@@ -27,15 +27,30 @@ class CourseDetail extends Component {
     render () {
         const { 
             course, 
-            user 
+            author 
         } = this.state;
+
+        const { context } = this.props;
+        const userAuth = context.authenticatedUser;
 
         return (
             <div>
                 <div className="actions--bar">
                 <div className="bounds">
-                    <div className="grid-100"><span><a className="button" href="update-course.html">Update Course</a><a className="button" href="#">Delete Course</a></span><a
-                        className="button button-secondary" href="index.html">Return to List</a></div>
+                    <div className="grid-100">
+                        <span>
+                            {userAuth && userAuth.emailAddress === author.emailAddress ?
+                                <React.Fragment>
+                                    <Link className="button" to={`/courses/${course.id}/update`}>Update Course</Link>
+                                    <Link className="button" to={`/courses/${course.id}/delete`}>Delete Course</Link>
+                                </React.Fragment>
+                            :
+                                <React.Fragment />
+                            }
+                            
+                        </span>
+                        <Link className="button button-secondary" to="/">Return to List</Link>
+                    </div>
                 </div>
                 </div>
                 <div className="bounds course--detail">
@@ -43,7 +58,7 @@ class CourseDetail extends Component {
                     <div className="course--header">
                     <h4 className="course--label">Course</h4>
                     <h3 className="course--title">{ course.title }</h3>
-                    <p>By {user.firstName} {user.lastName}</p>
+                    <p>By {author.firstName} {author.lastName}</p>
                     </div>
                     <div className="course--description">
                         <ReactMarkdown source={course.description} />
@@ -53,14 +68,14 @@ class CourseDetail extends Component {
                     <div className="course--stats">
                     <ul className="course--stats--list">
                         <li className="course--stats--list--item">
-                        <h4>Estimated Time</h4>
-                        <h3>{ course.estimatedTime }</h3>
+                            <h4>Estimated Time</h4>
+                            <h3>{ course.estimatedTime }</h3>
                         </li>
                         <li className="course--stats--list--item">
-                        <h4>Materials Needed</h4>
-                        <ul>
-                            <ReactMarkdown source={course.materialsNeeded} />
-                        </ul>
+                            <h4>Materials Needed</h4>
+                            <ul>
+                                <ReactMarkdown source={course.materialsNeeded} />
+                            </ul>
                         </li>
                     </ul>
                     </div>
