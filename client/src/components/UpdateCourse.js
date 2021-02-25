@@ -16,6 +16,12 @@ class UpdateCourse extends Component {
         // Fetch course from the API
         let id = this.props.match.params.id;
         fetch(`http://localhost:5000/api/courses/${id}`)
+            .then(response => {
+                if (response.status === 404) {
+                    this.props.history.push('/notfound');
+                }
+                return response;
+            })
             .then(response => response.json())
             .then(responseData => {
                 this.setState({ 

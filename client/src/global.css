@@ -689,6 +689,7 @@ input:focus {
   font-weight: bold;
   display: inline-block;
   box-sizing: border-box;
+  cursor: pointer;
   -webkit-transition: background 0.2s;
   -moz-transition: background 0.2s;
   -ms-transition: background 0.2s;
