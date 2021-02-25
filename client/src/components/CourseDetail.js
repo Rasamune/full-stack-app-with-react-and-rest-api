@@ -42,7 +42,7 @@ class CourseDetail extends Component {
                             {userAuth && userAuth.emailAddress === author.emailAddress ?
                                 <React.Fragment>
                                     <Link className="button" to={`/courses/${course.id}/update`}>Update Course</Link>
-                                    <Link className="button" to={`/courses/${course.id}/delete`}>Delete Course</Link>
+                                    <button className="button" onClick={this.handleDelete}>Delete Course</button>
                                 </React.Fragment>
                             :
                                 <React.Fragment />
@@ -83,6 +83,29 @@ class CourseDetail extends Component {
                 </div>
             </div>
         );
+    }
+
+    handleDelete = () => {
+        const { context } = this.props;
+        const userAuth = context.authenticatedUser;
+
+        const {
+            course
+        } = this.state;
+        
+        
+        context.data.deleteCourse(course.id, userAuth.emailAddress, userAuth.password)
+            .then( errors => {
+                if (errors.length) {
+                    this.setState({ errors });
+                } else {
+                    this.props.history.push("/");
+                }
+            })
+            .catch( err => { // handle rejected promises
+                console.log(err);
+                this.props.history.push('/error'); // push to history stack
+            });
     }
 }
 

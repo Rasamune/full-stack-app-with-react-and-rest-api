@@ -94,7 +94,7 @@ class UserSignIn extends Component {
           })
           .catch( err => {
             console.log(err);
-            //this.props.history.push('/error');
+            this.props.history.push('/error');
           });
     }
 

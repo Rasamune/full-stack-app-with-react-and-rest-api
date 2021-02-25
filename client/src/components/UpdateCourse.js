@@ -4,10 +4,12 @@ class UpdateCourse extends Component {
     state = {
         course: [],
         author: [],
+        id: '',
         title: '',
         description: '',
         estimatedTime: '',
-        materialsNeeded: ''
+        materialsNeeded: '',
+        errors: []
     }
 
     componentDidMount() {
@@ -18,6 +20,7 @@ class UpdateCourse extends Component {
             .then(responseData => {
                 this.setState({ 
                     course: responseData.course,
+                    id: responseData.course.id,
                     author: responseData.course.user,
                     title: responseData.course.title,
                     description: responseData.course.description,
@@ -25,6 +28,17 @@ class UpdateCourse extends Component {
                     materialsNeeded: responseData.course.materialsNeeded
                 });
             })
+            .then( () => {
+                    // Check credentials
+                    const { context } = this.props;
+                    const userAuth = context.authenticatedUser;
+
+                    // If credentials don't match, update is forbidden
+                    if (this.state.author.emailAddress !== userAuth.emailAddress) {
+                        this.props.history.push('/forbidden');
+                    }
+                }
+            )
             .catch(error => {
                 console.log('Error fetching and parsing data', error);
             });
@@ -36,14 +50,31 @@ class UpdateCourse extends Component {
             title,
             description,
             estimatedTime,
-            materialsNeeded
+            materialsNeeded,
+            errors
         } = this.state;
         
+        let errorsDisplay = null;
+
+        if (errors.length) {
+            errorsDisplay = (
+            <div>
+                <h2 className="validation--errors--label">Validation errors</h2>
+                <div className="validation-errors">
+                    <ul>
+                        {errors.map((error, i) => <li key={i}>{error}</li>)}
+                    </ul>
+                </div>
+            </div>
+            );
+        }
+
         return (
             <div className="bounds course--detail">
                 <h1>Update Course</h1>
                 <div>
-                <form>
+                { errorsDisplay }
+                <form onSubmit={this.handleSubmit}>
                     <div className="grid-66">
                         <div className="course--header">
                             <h4 className="course--label">Course</h4>
@@ -119,6 +150,45 @@ class UpdateCourse extends Component {
                 [name]: value
             };
         });
+    }
+
+    handleSubmit = (e) => {
+        e.preventDefault();
+
+        const { context } = this.props;
+        const userAuth = context.authenticatedUser;
+
+        const {
+            id,
+            title,
+            description,
+            estimatedTime,
+            materialsNeeded
+        } = this.state;
+    
+        // Update course payload
+        const course = {
+            id,
+            title,
+            description,
+            estimatedTime,
+            materialsNeeded,
+            userId: userAuth.id
+        };
+        
+        
+        context.data.updateCourse(course, id, userAuth.emailAddress, userAuth.password)
+            .then( errors => {
+                if (errors.length) {
+                    this.setState({ errors });
+                } else {
+                    this.props.history.push(`/courses/${this.state.course.id}`);
+                }
+            })
+            .catch( err => { // handle rejected promises
+                console.log(err);
+                this.props.history.push('/error'); // push to history stack
+            });
     }
 
     handleCancel = (e) => {
