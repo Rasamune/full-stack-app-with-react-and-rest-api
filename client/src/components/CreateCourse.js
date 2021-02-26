@@ -151,8 +151,7 @@ class CreateCourse extends Component {
                 }
             })
             .catch( err => { // handle rejected promises
-                console.log(err);
-                this.props.history.push('/error'); // push to history stack
+                this.props.history.push('/error');
             });
     }
 

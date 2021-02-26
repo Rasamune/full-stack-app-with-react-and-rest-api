@@ -16,7 +16,7 @@ class Courses extends Component {
                 this.setState({ courses: responseData.courses });
             })
             .catch(error => {
-                console.log('Error fetching and parsing data', error);
+                this.props.history.push('/error');
             });
     }
 
